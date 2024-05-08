@@ -135,15 +135,16 @@ DELIMITER ;
 
 
 insert into socios(nombre, apellidos)
-values ("Lucas", "Walica");
+values ("Pepito", "Walica");
 call prestar_libro(1, 1)
 
 insert into libros(titulo, autor, añoPub, categoria)
 values ("Crepusculo", "JK Rowling", 2004, "Romance")
 
 insert into socios(nombre, apellidos)
-values ("Ainara", "Rodriguez Garea")
+values ("Maria", "Rodriguez Garea")
 
+call prestar_libro(1, 1);
 
 DELIMITER $$
 create procedure devolver_libro(IN IDUser INT, IN IDbook INT, IN estadoLibroActual int)
@@ -186,5 +187,17 @@ DELIMITER ;
 call devolver_libro(1, 1);
 
 
+DELIMITER $$
+create procedure generar_reporte_actividad()
+BEGIN 
+    declare fecha_mes_anterior DATE;
+    set fecha_mes_anterior  = DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH);
 
-procedure generar_reporte_actividad
+    DELETE FROM auditoriaMensual;
+    INSERT INTO auditoriaMensual (fecha, idLibro, idSocio, tipoDeAccion, estadoLibro)
+    select fecha, idLibro, idSocio, tipoDeAccion, estadoLibro 
+    from auditoria where fecha > fecha_mes_anterior;
+
+    select * from auditoriaMensual;
+END $$ 
+DELIMITER ;
